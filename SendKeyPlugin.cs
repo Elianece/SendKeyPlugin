@@ -11,7 +11,6 @@ namespace SendKeyPlugin
     [ClassInterface(ClassInterfaceType.AutoDual)]
     public class SendKeyPlugin
     {
-        // ───── Win32 SendInput ─────
         [StructLayout(LayoutKind.Sequential)]
         struct INPUT
         {
@@ -49,7 +48,6 @@ namespace SendKeyPlugin
         [DllImport("user32.dll")]
         static extern int GetWindowText(IntPtr hWnd, System.Text.StringBuilder lpString, int nMaxCount);
 
-        // ───── 内部工具 ─────
         static INPUT MakeKey(ushort vk, ushort scan, uint flags)
         {
             return new INPUT
@@ -89,9 +87,6 @@ namespace SendKeyPlugin
             SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
         }
 
-        // ───── Overwolf JS 调用入口 ─────
-
-        // 异步发送给当前前景窗口（典型用法）
         public void sendChat(string text, object callback)
         {
             var cb = callback as Func<object, object>;
@@ -102,47 +97,44 @@ namespace SendKeyPlugin
                 {
                     if (string.IsNullOrEmpty(text))
                     {
-                        cb?.Invoke(new { success = false, error = "empty text" });
+                        try { cb?.Invoke(new { success = false, error = "empty text" }); } catch { }
                         return;
                     }
 
-                    // 1. Enter 打开聊天框
                     SendVKey(VK_RETURN);
                     Thread.Sleep(40);
 
-                    // 2. 逐字符 Unicode 注入
                     foreach (char c in text)
                     {
                         SendUnicodeChar(c);
-                        Thread.Sleep(1); // 防止极快连发导致丢字
+                        Thread.Sleep(1);
                     }
 
                     Thread.Sleep(30);
 
-                    // 3. Enter 发送
                     SendVKey(VK_RETURN);
 
-                    cb?.Invoke(new { success = true });
+                    try { cb?.Invoke(new { success = true }); } catch { }
                 }
                 catch (Exception ex)
                 {
-                    cb?.Invoke(new { success = false, error = ex.Message });
+                    try { cb?.Invoke(new { success = false, error = ex.Message }); } catch { }
                 }
             });
         }
 
-        // 探活，便于 JS 端确认插件已加载
-        public string ping()
+        public void ping(object callback)
         {
-            return "SendKeyPlugin OK";
+            var cb = callback as Func<object, object>;
+            try { cb?.Invoke("SendKeyPlugin OK"); } catch { }
         }
 
-        // 返回当前前景窗口标题（调试用，可以删）
-        public string getForegroundTitle()
+        public void getForegroundTitle(object callback)
         {
+            var cb = callback as Func<object, object>;
             var sb = new System.Text.StringBuilder(256);
             GetWindowText(GetForegroundWindow(), sb, sb.Capacity);
-            return sb.ToString();
+            try { cb?.Invoke(sb.ToString()); } catch { }
         }
     }
 }

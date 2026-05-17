@@ -18,7 +18,7 @@ jobs:
         uses: NuGet/setup-nuget@v2
 
       - name: Build
-        run: msbuild SendKeyPlugin.csproj /p:Configuration=Release /p:Platform=x86
+        run: msbuild SendKeyPlugin.csproj /p:Configuration=Release /p:Platform=AnyCPU
 
       - name: Upload DLL
         uses: actions/upload-artifact@v4

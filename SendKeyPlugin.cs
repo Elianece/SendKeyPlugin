@@ -87,17 +87,23 @@ namespace SendKeyPlugin
             SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
         }
 
-        public void sendChat(string text, object callback)
+        static Dictionary<string, object> Result(bool success, string error = null)
         {
-            var cb = callback as Func<object, object>;
+            var d = new Dictionary<string, object>();
+            d["success"] = success;
+            if (error != null) d["error"] = error;
+            return d;
+        }
 
+        public void sendChat(string text, Action<object> callback)
+        {
             Task.Run(() =>
             {
                 try
                 {
                     if (string.IsNullOrEmpty(text))
                     {
-                        try { cb?.Invoke(new { success = false, error = "empty text" }); } catch { }
+                        if (callback != null) callback(Result(false, "empty text"));
                         return;
                     }
 
@@ -114,27 +120,25 @@ namespace SendKeyPlugin
 
                     SendVKey(VK_RETURN);
 
-                    try { cb?.Invoke(new { success = true }); } catch { }
+                    if (callback != null) callback(Result(true));
                 }
                 catch (Exception ex)
                 {
-                    try { cb?.Invoke(new { success = false, error = ex.Message }); } catch { }
+                    if (callback != null) callback(Result(false, ex.Message));
                 }
             });
         }
 
-        public void ping(object callback)
+        public void ping(Action<object> callback)
         {
-            var cb = callback as Func<object, object>;
-            try { cb?.Invoke("SendKeyPlugin OK"); } catch { }
+            if (callback != null) callback("SendKeyPlugin OK");
         }
 
-        public void getForegroundTitle(object callback)
+        public void getForegroundTitle(Action<object> callback)
         {
-            var cb = callback as Func<object, object>;
             var sb = new System.Text.StringBuilder(256);
             GetWindowText(GetForegroundWindow(), sb, sb.Capacity);
-            try { cb?.Invoke(sb.ToString()); } catch { }
+            if (callback != null) callback(sb.ToString());
         }
     }
 }

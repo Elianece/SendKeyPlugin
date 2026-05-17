@@ -11,19 +11,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
 
-      - name: Restore
-        run: dotnet restore SendKeyPlugin.csproj
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
 
       - name: Build
-        run: dotnet build SendKeyPlugin.csproj -c Release
+        run: msbuild SendKeyPlugin.csproj /p:Configuration=Release /p:Platform=x86
 
       - name: Upload DLL
         uses: actions/upload-artifact@v4
         with:
           name: SendKeyPlugin
-          path: bin/Release/net48/SendKeyPlugin.dll
+          path: bin/Release/SendKeyPlugin.dll

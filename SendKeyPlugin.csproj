@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <OutputType>Library</OutputType>
+    <AssemblyName>SendKeyPlugin</AssemblyName>
+    <RootNamespace>SendKeyPlugin</RootNamespace>
+    <PlatformTarget>x86</PlatformTarget>
+    <ComVisible>true</ComVisible>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+  </PropertyGroup>
+</Project>
